@@ -42,8 +42,9 @@ void Mesh::Read_Obj(const char* file)
 // Check for an intersection against the ray.  See the base class for details.
 Hit Mesh::Intersection(const Ray& ray, int part) const
 {
+    Hit* temp=NULL;
     TODO;
-    return {};
+    return *temp;
 }
 
 // Compute the normal direction for the triangle with index part.
