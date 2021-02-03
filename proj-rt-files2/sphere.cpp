@@ -5,17 +5,24 @@
 Hit Sphere::Intersection(const Ray& ray, int part) const
 {
   //  TODO;
- 
+    Hit hit; 
     vec3 RayEndp = ray.endpoint - this->center;
-    
+    double t1;
+    double t2; 
     double Dtm = (dot(RayEndp,ray.direction)*dot(RayEndp,ray.direction)) - RayEndp.magnitude_squared()+(this->radius*this->radius);
 
     if(Dtm > 0){
-	double t1 = -dot(RayEndp,ray.direction) + sqrt(Dtm);
-	double t2 = -dot(RayEndp,ray.direction) - sqrt(Dtm);
+	 t1 = -dot(RayEndp,ray.direction) - sqrt(Dtm);
+	 t2 = -dot(RayEndp,ray.direction) + sqrt(Dtm);
 
-	if(t2> 0)
-		return Hit(this,t2,part);
+	if(t2> 0){
+		hit.object = this;
+		hit.dist = t2;
+		hit.part = part;
+		return hit;
+	
+	}
+	
 	if(t2 < 0 && 0 < t1)
 		return Hit(this,t1,part);
 	else

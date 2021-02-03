@@ -23,15 +23,15 @@ Render_World::~Render_World()
 Hit Render_World::Closest_Intersection(const Ray& ray)
 {
    // TODO;
-    int dummy =0;
+    
     unsigned objs_Size = objects.size();
-    Hit current, previous;
+    Hit closest;
 
     double min_t(std::numeric_limits<double>::max());
 
     for(unsigned i = 0; i < objs_Size; i++){
 			
-			current = objects.at(i)->Intersection(ray,dummy);
+			Hit current = objects[i]->Intersection(ray,-1);
 			
 			if(!current.dist)
 				continue;
@@ -42,10 +42,11 @@ Hit Render_World::Closest_Intersection(const Ray& ray)
 			if(current.dist < min_t && current.dist > small_t )
 			{
 			
-				previous = current;
+				closest = current;
+                                closest.object = current.object;
 
 				//Store the hit as the closest hit
-				min_t = previous.dist;
+				min_t = closest.dist;
 					
 			}
 		
@@ -53,7 +54,7 @@ Hit Render_World::Closest_Intersection(const Ray& ray)
 	}
 	
     
-    return previous;
+    return closest;
 }
 
 // set up the initial view ray and call
@@ -64,7 +65,8 @@ void Render_World::Render_Pixel(const ivec2& pixel_index)
     //added the code below
     ray.endpoint = this->camera.position;
     ray.direction = ((this->camera.World_Position(pixel_index)) - ray.endpoint).normalized();
-    //-------------------------------
+       
+ //-------------------------------
     vec3 color=Cast_Ray(ray,1);
     camera.Set_Pixel(pixel_index,Pixel_Color(color));
 }
@@ -85,16 +87,20 @@ vec3 Render_World::Cast_Ray(const Ray& ray,int recursion_depth)
 {
     vec3 color;
     Hit hit = Closest_Intersection(ray);
-    
-    if(recursion_depth > recursion_depth_limit)
-	return background_shader->Shade_Surface(ray, color, color, recursion_depth);
-    	
-    if(hit.object){
-		vec3 intersect = ray.Point(hit.dist);
+   
+	
+  	
+    if(hit.object != NULL){
+		vec3 intersect = ray.endpoint + (ray.direction*hit.dist);
 		vec3 normal = hit.object->Normal(intersect,hit.part);
 		color = hit.object->material_shader->Shade_Surface(ray,intersect,normal,recursion_depth);
 
     }
+    else{
+
+	color = this->background_shader->Shade_Surface(ray, color, color, recursion_depth);
+    }
+	
     return color;
 }
 
